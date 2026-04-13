@@ -1,0 +1,58 @@
+{
+  "name": "@octofloworg/paperclip-plugin-driftwatch",
+  "version": "0.1.0",
+  "description": "Read-only Paperclip plugin for auditing agent instruction drift, overlap, and handoff mismatches.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OctoflowOrg/paperclip-plugin-driftwatch.git"
+  },
+  "homepage": "https://github.com/OctoflowOrg/paperclip-plugin-driftwatch#readme",
+  "bugs": {
+    "url": "https://github.com/OctoflowOrg/paperclip-plugin-driftwatch/issues"
+  },
+  "keywords": [
+    "paperclip",
+    "paperclip-plugin",
+    "driftwatch",
+    "agents",
+    "llm"
+  ],
+  "files": [
+    "dist",
+    "src",
+    "build.js",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "paperclipPlugin": {
+    "manifest": "dist/manifest.js"
+  },
+  "main": "dist/worker.js",
+  "exports": {
+    ".": "./dist/worker.js",
+    "./manifest": "./dist/manifest.js",
+    "./ui": "./dist/ui/index.js"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@paperclipai/plugin-sdk": "2026.325.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}
