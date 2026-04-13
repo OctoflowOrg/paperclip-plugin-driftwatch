@@ -40,7 +40,8 @@
     "build": "node build.js",
     "dev": "node build.js --watch",
     "clean": "rm -rf dist",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build",
+    "verify:package": "npm pack --dry-run"
   },
   "dependencies": {
     "@paperclipai/plugin-sdk": "2026.325.0"
@@ -53,6 +54,9 @@
     "access": "public"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
-  }
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "packageManager": "pnpm@10.17.1"
 }
