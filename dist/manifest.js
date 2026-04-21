@@ -2,14 +2,15 @@
 var manifest = {
   id: "paperclip-plugin-driftwatch",
   apiVersion: 1,
-  version: "0.1.0",
+  version: "0.1.8",
   displayName: "DriftWatch",
   description: "Audit agent instructions in read-only mode. Detect drift, overlap, and handoff mismatches across your agent system.",
   author: "DriftWatch",
-  categories: ["developer-tools"],
+  categories: ["ui"],
   capabilities: [
-    "http.fetch",
-    "plugin.state.read",
+    "agents.read",
+    "http.outbound",
+    "secrets.read-ref",
     "ui.page.register"
   ],
   entrypoints: {
@@ -36,13 +37,13 @@ var manifest = {
         type: "string",
         format: "secret-ref",
         title: "Anthropic API key (override)",
-        description: "Optional. Falls back to ANTHROPIC_API_KEY env var if not set."
+        description: "Optional. Stored as a Paperclip encrypted secret reference. Falls back to ANTHROPIC_API_KEY env var if not set."
       },
       openaiApiKey: {
         type: "string",
         format: "secret-ref",
         title: "OpenAI API key (override)",
-        description: "Optional. Falls back to OPENAI_API_KEY env var if not set."
+        description: "Optional. Stored as a Paperclip encrypted secret reference. Falls back to OPENAI_API_KEY env var if not set."
       }
     },
     required: ["provider", "model"]

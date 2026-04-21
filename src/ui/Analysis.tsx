@@ -136,7 +136,8 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     display: 'flex',
     flexDirection: 'column',
-    borderLeft: '1px solid var(--border-color, #e0e0e0)',
+    borderLeft: '1px solid var(--border-color, rgba(255,255,255,0.08))',
+    background: 'var(--panel-bg, rgba(255,255,255,0.02))',
     overflow: 'hidden',
   },
   header: {
@@ -148,16 +149,16 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '13px',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.5px',
-    color: 'var(--text-secondary, #666)',
-    borderBottom: '1px solid var(--border-color, #e0e0e0)',
+    color: 'var(--text-secondary, #9ca3af)',
+    borderBottom: '1px solid var(--border-color, rgba(255,255,255,0.08))',
   },
   runBtn: {
     padding: '4px 12px',
     fontSize: '12px',
     fontWeight: 500,
-    border: '1px solid var(--accent-color, #1a73e8)',
-    borderRadius: '4px',
-    background: 'var(--accent-color, #1a73e8)',
+    border: '1px solid var(--accent-color, #60a5fa)',
+    borderRadius: '999px',
+    background: 'var(--accent-color, #60a5fa)',
     color: '#fff',
     cursor: 'pointer',
     textTransform: 'none' as const,
@@ -171,19 +172,19 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '10px 12px',
     fontSize: '12px',
     lineHeight: '1.4',
-    color: 'var(--text-secondary, #666)',
-    borderBottom: '1px solid var(--border-color-light, #f0f0f0)',
-    background: 'var(--surface-subtle, #fafafa)',
+    color: 'var(--text-secondary, #9ca3af)',
+    borderBottom: '1px solid var(--border-color-light, rgba(255,255,255,0.06))',
+    background: 'var(--surface-subtle, rgba(255,255,255,0.03))',
   },
   intent: {
     fontSize: '12px',
     marginBottom: '6px',
-    color: 'var(--text-primary, #333)',
+    color: 'var(--text-primary, #e5e7eb)',
   },
   pipeline: {
     fontSize: '12px',
     marginBottom: '12px',
-    color: 'var(--text-secondary, #666)',
+    color: 'var(--text-secondary, #94a3b8)',
   },
   summary: {
     display: 'flex',
@@ -214,7 +215,7 @@ const styles: Record<string, React.CSSProperties> = {
   clean: {
     padding: '16px',
     textAlign: 'center' as const,
-    color: 'var(--success-text, #2e7d32)',
+    color: 'var(--success-text, #86efac)',
     fontSize: '13px',
   },
   finding: {
@@ -239,7 +240,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   findingType: {
     fontSize: '11px',
-    color: 'var(--text-secondary, #666)',
+    color: 'var(--text-secondary, #94a3b8)',
     fontFamily: 'monospace',
   },
   findingTitle: {
@@ -257,7 +258,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '10px',
     padding: '1px 6px',
     borderRadius: '8px',
-    background: 'rgba(0,0,0,0.08)',
+    background: 'rgba(255,255,255,0.08)',
     fontFamily: 'monospace',
   },
   findingDetail: {

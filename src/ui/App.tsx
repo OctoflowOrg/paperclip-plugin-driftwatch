@@ -4,6 +4,26 @@ import { Editor } from './Editor.js';
 import { Analysis } from './Analysis.js';
 import type { Agent, InstructionFile, AuditResult } from './types.js';
 
+function describeError(error: unknown): string {
+  if (typeof error === 'string') return error;
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') {
+    const record = error as Record<string, unknown>;
+    const nested = record.error;
+    if (typeof nested === 'string') return nested;
+    if (nested && typeof nested === 'object') {
+      const nestedMessage = (nested as Record<string, unknown>).message;
+      if (typeof nestedMessage === 'string') return nestedMessage;
+    }
+    const message = record.message;
+    if (typeof message === 'string') return message;
+    try {
+      return JSON.stringify(error, null, 2);
+    } catch {}
+  }
+  return String(error);
+}
+
 export function App() {
   const React = getReact();
   const {
@@ -14,18 +34,15 @@ export function App() {
   } = React;
 
   const useHostContext = getHook('useHostContext');
-  const usePluginData = getHook('usePluginData');
   const usePluginAction = getHook('usePluginAction');
   const usePluginToast = getHook('usePluginToast');
 
   const context = useHostContext();
   const companyId = context?.companyId;
 
-  // Agent list
-  const {
-    data: agents,
-    loading: agentsLoading,
-  } = usePluginData('agents', { companyId });
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [agentsLoading, setAgentsLoading] = useState(false);
+  const [agentsError, setAgentsError] = useState<string | null>(null);
 
   // Selection state
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -42,7 +59,59 @@ export function App() {
   const runAnalysis = usePluginAction('run-analysis');
   const toast = usePluginToast();
 
-  const allAgents: Agent[] = agents ?? [];
+  const allAgents: Agent[] = agents;
+  const resolvedAgentsError = agentsError;
+
+  useEffect(() => {
+    if (!companyId) {
+      setAgents([]);
+      setAgentsError('Missing company context');
+      setAgentsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadAgents() {
+      setAgentsLoading(true);
+      setAgentsError(null);
+
+      try {
+        const res = await fetch(`/api/companies/${companyId}/agents`, {
+          credentials: 'include',
+          headers: { Accept: 'application/json' },
+        });
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          throw new Error(
+            data?.error || data?.message || `Failed to load agents: HTTP ${res.status}`,
+          );
+        }
+
+        if (!cancelled) {
+          setAgents(
+            Array.isArray(data) ? data : Array.isArray(data?.agents) ? data.agents : [],
+          );
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setAgents([]);
+          setAgentsError(describeError(error));
+        }
+      } finally {
+        if (!cancelled) {
+          setAgentsLoading(false);
+        }
+      }
+    }
+
+    loadAgents();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [companyId]);
 
   useEffect(() => {
     if (allAgents.length === 0) {
@@ -114,7 +183,7 @@ export function App() {
     } catch (err) {
       toast({
         title: 'Failed to load agent files',
-        body: String(err),
+        body: describeError(err),
         tone: 'error',
         ttlMs: 5000,
       });
@@ -173,9 +242,7 @@ export function App() {
       const result = await runAnalysis({ agents: agentPayloads });
       setAnalysisResult(result as AuditResult);
     } catch (err) {
-      setAnalysisError(
-        err instanceof Error ? err.message : String(err),
-      );
+      setAnalysisError(describeError(err));
     } finally {
       setAnalysisLoading(false);
     }
@@ -189,6 +256,7 @@ export function App() {
       loading: agentsLoading,
       includedIds: includedAgentIds,
       onToggleIncluded: handleToggleIncluded,
+      error: resolvedAgentsError,
     }),
     h(Editor, {
       file: currentFile,
@@ -213,7 +281,11 @@ const styles: Record<string, React.CSSProperties> = {
     height: '100%',
     fontFamily:
       '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    color: 'var(--text-primary, #1a1a1a)',
-    background: 'var(--surface-bg, #fff)',
+    color: 'var(--text-primary, #e5e7eb)',
+    background: 'var(--surface-bg, transparent)',
+  },
+  panel: {
+    background: 'var(--panel-bg, rgba(255,255,255,0.02))',
+    backdropFilter: 'blur(8px)',
   },
 };

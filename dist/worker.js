@@ -125,6 +125,10 @@ var AUDIT_SCHEMA = {
   },
   required: ["inferredIntent", "pipelineOrder", "agents", "findings"]
 };
+function absoluteApiUrl(path) {
+  const base = process.env.PAPERCLIP_PUBLIC_URL ?? process.env.PAPERCLIP_API_URL ?? "https://agents.octosync.dev";
+  return new URL(path, base).toString();
+}
 function extractErrorMessage(data) {
   if (!data || typeof data !== "object") return null;
   const record = data;
@@ -263,7 +267,7 @@ var plugin = definePlugin({
     ctx.data.register("agents", async (params) => {
       const companyId = params.companyId;
       const res = await ctx.http.fetch(
-        `/api/companies/${companyId}/agents`,
+        absoluteApiUrl(`/api/companies/${companyId}/agents`),
         { method: "GET" }
       );
       return res.json();
@@ -271,7 +275,7 @@ var plugin = definePlugin({
     ctx.data.register("instruction-files", async (params) => {
       const agentId = params.agentId;
       const res = await ctx.http.fetch(
-        `/api/agents/${agentId}/instructions-bundle`,
+        absoluteApiUrl(`/api/agents/${agentId}/instructions-bundle`),
         { method: "GET" }
       );
       return res.json();
@@ -280,7 +284,9 @@ var plugin = definePlugin({
       const agentId = params.agentId;
       const path = params.path;
       const res = await ctx.http.fetch(
-        `/api/agents/${agentId}/instructions-bundle/file?path=${encodeURIComponent(path)}`,
+        absoluteApiUrl(
+          `/api/agents/${agentId}/instructions-bundle/file?path=${encodeURIComponent(path)}`
+        ),
         { method: "GET" }
       );
       return res.json();
@@ -292,8 +298,13 @@ var plugin = definePlugin({
       const model = pluginConfig.model ?? "gpt-5";
       const keyRef = provider === "openai" ? pluginConfig.openaiApiKey : pluginConfig.anthropicApiKey;
       let apiKey;
+      let secretRefError;
       if (keyRef) {
-        apiKey = await ctx.secrets.resolve(keyRef);
+        try {
+          apiKey = await ctx.secrets.resolve(keyRef);
+        } catch {
+          secretRefError = provider === "openai" ? "Invalid OpenAI secret reference in plugin settings. Use a Paperclip secret reference, not a raw API key." : "Invalid Anthropic secret reference in plugin settings. Use a Paperclip secret reference, not a raw API key.";
+        }
       }
       if (!apiKey) {
         const envVar = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
@@ -301,6 +312,9 @@ var plugin = definePlugin({
       }
       if (!apiKey) {
         const envVar = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
+        if (secretRefError) {
+          throw new Error(secretRefError);
+        }
         throw new Error(
           `No API key for "${provider}". Set ${envVar} env var or configure in plugin settings.`
         );

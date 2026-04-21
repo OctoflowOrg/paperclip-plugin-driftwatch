@@ -141,6 +141,15 @@ const AUDIT_SCHEMA = {
   required: ['inferredIntent', 'pipelineOrder', 'agents', 'findings'],
 } as const;
 
+function absoluteApiUrl(path: string): string {
+  const base =
+    process.env.PAPERCLIP_PUBLIC_URL ??
+    process.env.PAPERCLIP_API_URL ??
+    'https://agents.octosync.dev';
+
+  return new URL(path, base).toString();
+}
+
 function extractErrorMessage(data: unknown): string | null {
   if (!data || typeof data !== 'object') return null;
   const record = data as Record<string, unknown>;
@@ -325,7 +334,7 @@ const plugin = definePlugin({
     ctx.data.register('agents', async (params) => {
       const companyId = params.companyId as string;
       const res = await ctx.http.fetch(
-        `/api/companies/${companyId}/agents`,
+        absoluteApiUrl(`/api/companies/${companyId}/agents`),
         { method: 'GET' },
       );
       return res.json();
@@ -335,7 +344,7 @@ const plugin = definePlugin({
     ctx.data.register('instruction-files', async (params) => {
       const agentId = params.agentId as string;
       const res = await ctx.http.fetch(
-        `/api/agents/${agentId}/instructions-bundle`,
+        absoluteApiUrl(`/api/agents/${agentId}/instructions-bundle`),
         { method: 'GET' },
       );
       return res.json();
@@ -346,7 +355,9 @@ const plugin = definePlugin({
       const agentId = params.agentId as string;
       const path = params.path as string;
       const res = await ctx.http.fetch(
-        `/api/agents/${agentId}/instructions-bundle/file?path=${encodeURIComponent(path)}`,
+        absoluteApiUrl(
+          `/api/agents/${agentId}/instructions-bundle/file?path=${encodeURIComponent(path)}`,
+        ),
         { method: 'GET' },
       );
       return res.json();
@@ -367,8 +378,16 @@ const plugin = definePlugin({
           : pluginConfig.anthropicApiKey;
 
       let apiKey: string | undefined;
+      let secretRefError: string | undefined;
       if (keyRef) {
-        apiKey = await ctx.secrets.resolve(keyRef as string);
+        try {
+          apiKey = await ctx.secrets.resolve(keyRef as string);
+        } catch {
+          secretRefError =
+            provider === 'openai'
+              ? 'Invalid OpenAI secret reference in plugin settings. Use a Paperclip secret reference, not a raw API key.'
+              : 'Invalid Anthropic secret reference in plugin settings. Use a Paperclip secret reference, not a raw API key.';
+        }
       }
       if (!apiKey) {
         const envVar =
@@ -378,6 +397,9 @@ const plugin = definePlugin({
       if (!apiKey) {
         const envVar =
           provider === 'openai' ? 'OPENAI_API_KEY' : 'ANTHROPIC_API_KEY';
+        if (secretRefError) {
+          throw new Error(secretRefError);
+        }
         throw new Error(
           `No API key for "${provider}". Set ${envVar} env var or configure in plugin settings.`,
         );

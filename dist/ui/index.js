@@ -13,7 +13,8 @@ function AgentList({
   onSelect,
   loading,
   includedIds,
-  onToggleIncluded
+  onToggleIncluded,
+  error
 }) {
   const React = getReact();
   const { createElement: h } = React;
@@ -34,6 +35,7 @@ function AgentList({
       { style: styles.notice },
       "Select which agents to include in drift analysis. Click a row to inspect its instruction bundle."
     ),
+    error ? h("div", { style: styles.error }, error) : null,
     h(
       "div",
       { style: styles.list },
@@ -79,7 +81,8 @@ var styles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    borderRight: "1px solid var(--border-color, #e0e0e0)",
+    borderRight: "1px solid var(--border-color, rgba(255,255,255,0.08))",
+    background: "var(--panel-bg, rgba(255,255,255,0.02))",
     overflow: "hidden"
   },
   header: {
@@ -88,8 +91,8 @@ var styles = {
     fontSize: "13px",
     textTransform: "uppercase",
     letterSpacing: "0.5px",
-    color: "var(--text-secondary, #666)",
-    borderBottom: "1px solid var(--border-color, #e0e0e0)"
+    color: "var(--text-secondary, #9ca3af)",
+    borderBottom: "1px solid var(--border-color, rgba(255,255,255,0.08))"
   },
   list: {
     flex: 1,
@@ -99,14 +102,14 @@ var styles = {
     padding: "10px 16px",
     fontSize: "12px",
     lineHeight: "1.4",
-    color: "var(--text-secondary, #666)",
-    background: "var(--surface-subtle, #fafafa)",
-    borderBottom: "1px solid var(--border-color-light, #f0f0f0)"
+    color: "var(--text-secondary, #9ca3af)",
+    background: "var(--surface-subtle, rgba(255,255,255,0.03))",
+    borderBottom: "1px solid var(--border-color-light, rgba(255,255,255,0.06))"
   },
   item: {
     padding: "10px 16px",
     cursor: "pointer",
-    borderBottom: "1px solid var(--border-color-light, #f0f0f0)",
+    borderBottom: "1px solid var(--border-color-light, rgba(255,255,255,0.06))",
     transition: "background 0.15s"
   },
   itemHeader: {
@@ -115,8 +118,8 @@ var styles = {
     gap: "10px"
   },
   itemSelected: {
-    background: "var(--selection-bg, #e8f0fe)",
-    borderLeft: "3px solid var(--accent-color, #1a73e8)",
+    background: "var(--selection-bg, rgba(96,165,250,0.14))",
+    borderLeft: "3px solid var(--accent-color, #60a5fa)",
     paddingLeft: "13px"
   },
   meta: {
@@ -128,13 +131,21 @@ var styles = {
   },
   role: {
     fontSize: "12px",
-    color: "var(--text-secondary, #888)",
+    color: "var(--text-secondary, #94a3b8)",
     marginTop: "2px"
   },
   loading: {
     padding: "16px",
-    color: "var(--text-secondary, #888)",
+    color: "var(--text-secondary, #94a3b8)",
     fontSize: "13px"
+  },
+  error: {
+    padding: "10px 16px",
+    fontSize: "12px",
+    lineHeight: "1.4",
+    color: "#fecaca",
+    background: "rgba(127,29,29,0.45)",
+    borderBottom: "1px solid rgba(248,113,113,0.3)"
   }
 };
 
@@ -194,20 +205,20 @@ var styles2 = {
     alignItems: "center",
     justifyContent: "space-between",
     padding: "8px 16px",
-    borderBottom: "1px solid var(--border-color, #e0e0e0)",
-    background: "var(--surface-bg, #fafafa)"
+    borderBottom: "1px solid var(--border-color, rgba(255,255,255,0.08))",
+    background: "var(--surface-bg, rgba(255,255,255,0.02))"
   },
   fileName: {
     fontSize: "13px",
     fontWeight: 500,
-    color: "var(--text-primary, #333)"
+    color: "var(--text-primary, #e5e7eb)"
   },
   readOnlyBadge: {
     fontSize: "11px",
     padding: "2px 8px",
     borderRadius: "10px",
-    background: "var(--warning-bg, #fff3cd)",
-    color: "var(--warning-text, #856404)",
+    background: "var(--warning-bg, rgba(120,53,15,0.45))",
+    color: "var(--warning-text, #fcd34d)",
     fontWeight: 600
   },
   textarea: {
@@ -219,8 +230,8 @@ var styles2 = {
     border: "none",
     outline: "none",
     resize: "none",
-    background: "var(--editor-bg, #fff)",
-    color: "var(--text-primary, #1a1a1a)",
+    background: "var(--editor-bg, rgba(255,255,255,0.01))",
+    color: "var(--text-primary, #e5e7eb)",
     cursor: "default"
   },
   empty: {
@@ -228,7 +239,7 @@ var styles2 = {
     alignItems: "center",
     justifyContent: "center",
     height: "100%",
-    color: "var(--text-secondary, #999)"
+    color: "var(--text-secondary, #94a3b8)"
   },
   emptyText: {
     fontSize: "14px"
@@ -359,7 +370,8 @@ var styles3 = {
   container: {
     display: "flex",
     flexDirection: "column",
-    borderLeft: "1px solid var(--border-color, #e0e0e0)",
+    borderLeft: "1px solid var(--border-color, rgba(255,255,255,0.08))",
+    background: "var(--panel-bg, rgba(255,255,255,0.02))",
     overflow: "hidden"
   },
   header: {
@@ -371,16 +383,16 @@ var styles3 = {
     fontSize: "13px",
     textTransform: "uppercase",
     letterSpacing: "0.5px",
-    color: "var(--text-secondary, #666)",
-    borderBottom: "1px solid var(--border-color, #e0e0e0)"
+    color: "var(--text-secondary, #9ca3af)",
+    borderBottom: "1px solid var(--border-color, rgba(255,255,255,0.08))"
   },
   runBtn: {
     padding: "4px 12px",
     fontSize: "12px",
     fontWeight: 500,
-    border: "1px solid var(--accent-color, #1a73e8)",
-    borderRadius: "4px",
-    background: "var(--accent-color, #1a73e8)",
+    border: "1px solid var(--accent-color, #60a5fa)",
+    borderRadius: "999px",
+    background: "var(--accent-color, #60a5fa)",
     color: "#fff",
     cursor: "pointer",
     textTransform: "none"
@@ -394,19 +406,19 @@ var styles3 = {
     padding: "10px 12px",
     fontSize: "12px",
     lineHeight: "1.4",
-    color: "var(--text-secondary, #666)",
-    borderBottom: "1px solid var(--border-color-light, #f0f0f0)",
-    background: "var(--surface-subtle, #fafafa)"
+    color: "var(--text-secondary, #9ca3af)",
+    borderBottom: "1px solid var(--border-color-light, rgba(255,255,255,0.06))",
+    background: "var(--surface-subtle, rgba(255,255,255,0.03))"
   },
   intent: {
     fontSize: "12px",
     marginBottom: "6px",
-    color: "var(--text-primary, #333)"
+    color: "var(--text-primary, #e5e7eb)"
   },
   pipeline: {
     fontSize: "12px",
     marginBottom: "12px",
-    color: "var(--text-secondary, #666)"
+    color: "var(--text-secondary, #94a3b8)"
   },
   summary: {
     display: "flex",
@@ -437,7 +449,7 @@ var styles3 = {
   clean: {
     padding: "16px",
     textAlign: "center",
-    color: "var(--success-text, #2e7d32)",
+    color: "var(--success-text, #86efac)",
     fontSize: "13px"
   },
   finding: {
@@ -462,7 +474,7 @@ var styles3 = {
   },
   findingType: {
     fontSize: "11px",
-    color: "var(--text-secondary, #666)",
+    color: "var(--text-secondary, #94a3b8)",
     fontFamily: "monospace"
   },
   findingTitle: {
@@ -480,7 +492,7 @@ var styles3 = {
     fontSize: "10px",
     padding: "1px 6px",
     borderRadius: "8px",
-    background: "rgba(0,0,0,0.08)",
+    background: "rgba(255,255,255,0.08)",
     fontFamily: "monospace"
   },
   findingDetail: {
@@ -508,6 +520,26 @@ var styles3 = {
 };
 
 // src/ui/App.tsx
+function describeError(error) {
+  if (typeof error === "string") return error;
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object") {
+    const record = error;
+    const nested = record.error;
+    if (typeof nested === "string") return nested;
+    if (nested && typeof nested === "object") {
+      const nestedMessage = nested.message;
+      if (typeof nestedMessage === "string") return nestedMessage;
+    }
+    const message = record.message;
+    if (typeof message === "string") return message;
+    try {
+      return JSON.stringify(error, null, 2);
+    } catch {
+    }
+  }
+  return String(error);
+}
 function App() {
   const React = getReact();
   const {
@@ -517,15 +549,13 @@ function App() {
     useCallback
   } = React;
   const useHostContext = getHook("useHostContext");
-  const usePluginData = getHook("usePluginData");
   const usePluginAction = getHook("usePluginAction");
   const usePluginToast = getHook("usePluginToast");
   const context = useHostContext();
   const companyId = context?.companyId;
-  const {
-    data: agents,
-    loading: agentsLoading
-  } = usePluginData("agents", { companyId });
+  const [agents, setAgents] = useState([]);
+  const [agentsLoading, setAgentsLoading] = useState(false);
+  const [agentsError, setAgentsError] = useState(null);
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [includedAgentIds, setIncludedAgentIds] = useState([]);
   const [filesLoading, setFilesLoading] = useState(false);
@@ -535,7 +565,51 @@ function App() {
   const [analysisError, setAnalysisError] = useState(null);
   const runAnalysis = usePluginAction("run-analysis");
   const toast = usePluginToast();
-  const allAgents = agents ?? [];
+  const allAgents = agents;
+  const resolvedAgentsError = agentsError;
+  useEffect(() => {
+    if (!companyId) {
+      setAgents([]);
+      setAgentsError("Missing company context");
+      setAgentsLoading(false);
+      return;
+    }
+    let cancelled = false;
+    async function loadAgents() {
+      setAgentsLoading(true);
+      setAgentsError(null);
+      try {
+        const res = await fetch(`/api/companies/${companyId}/agents`, {
+          credentials: "include",
+          headers: { Accept: "application/json" }
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          throw new Error(
+            data?.error || data?.message || `Failed to load agents: HTTP ${res.status}`
+          );
+        }
+        if (!cancelled) {
+          setAgents(
+            Array.isArray(data) ? data : Array.isArray(data?.agents) ? data.agents : []
+          );
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setAgents([]);
+          setAgentsError(describeError(error));
+        }
+      } finally {
+        if (!cancelled) {
+          setAgentsLoading(false);
+        }
+      }
+    }
+    loadAgents();
+    return () => {
+      cancelled = true;
+    };
+  }, [companyId]);
   useEffect(() => {
     if (allAgents.length === 0) {
       setIncludedAgentIds(
@@ -589,7 +663,7 @@ function App() {
     } catch (err) {
       toast({
         title: "Failed to load agent files",
-        body: String(err),
+        body: describeError(err),
         tone: "error",
         ttlMs: 5e3
       });
@@ -634,9 +708,7 @@ function App() {
       const result = await runAnalysis({ agents: agentPayloads });
       setAnalysisResult(result);
     } catch (err) {
-      setAnalysisError(
-        err instanceof Error ? err.message : String(err)
-      );
+      setAnalysisError(describeError(err));
     } finally {
       setAnalysisLoading(false);
     }
@@ -650,7 +722,8 @@ function App() {
       onSelect: handleAgentSelect,
       loading: agentsLoading,
       includedIds: includedAgentIds,
-      onToggleIncluded: handleToggleIncluded
+      onToggleIncluded: handleToggleIncluded,
+      error: resolvedAgentsError
     }),
     h(Editor, {
       file: currentFile,
@@ -673,8 +746,12 @@ var styles4 = {
     gridTemplateColumns: "220px 1fr 300px",
     height: "100%",
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    color: "var(--text-primary, #1a1a1a)",
-    background: "var(--surface-bg, #fff)"
+    color: "var(--text-primary, #e5e7eb)",
+    background: "var(--surface-bg, transparent)"
+  },
+  panel: {
+    background: "var(--panel-bg, rgba(255,255,255,0.02))",
+    backdropFilter: "blur(8px)"
   }
 };
 
