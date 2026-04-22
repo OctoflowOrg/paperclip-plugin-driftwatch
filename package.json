@@ -1,6 +1,6 @@
 {
   "name": "@octofloworg/paperclip-plugin-driftwatch",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Read-only Paperclip plugin for auditing agent instruction drift, overlap, and handoff mismatches.",
   "type": "module",
   "private": false,

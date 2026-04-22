@@ -244,11 +244,10 @@ function extractOpenAIOutputText(data: unknown): string {
 }
 
 async function callAnthropic(
-  http: { fetch(url: string, init?: RequestInit): Promise<Response> },
   config: AnalysisConfig,
   userContent: string,
 ): Promise<unknown> {
-  const res = await http.fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -272,11 +271,10 @@ async function callAnthropic(
 }
 
 async function callOpenAI(
-  http: { fetch(url: string, init?: RequestInit): Promise<Response> },
   config: AnalysisConfig,
   userContent: string,
 ): Promise<unknown> {
-  const res = await http.fetch('https://api.openai.com/v1/responses', {
+  const res = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -312,15 +310,14 @@ async function callOpenAI(
 }
 
 async function callModel(
-  http: { fetch(url: string, init?: RequestInit): Promise<Response> },
   config: AnalysisConfig,
   userContent: string,
 ): Promise<unknown> {
   switch (config.provider) {
     case 'anthropic':
-      return callAnthropic(http, config, userContent);
+      return callAnthropic(config, userContent);
     case 'openai':
-      return callOpenAI(http, config, userContent);
+      return callOpenAI(config, userContent);
     default:
       throw new Error(`Unknown provider: ${config.provider}`);
   }
@@ -400,7 +397,7 @@ const plugin = definePlugin({
 
       ctx.logger.info('Running analysis', { provider, model, agentCount: agents.length });
 
-      return await callModel(ctx.http, { provider, model, apiKey }, userContent);
+      return await callModel({ provider, model, apiKey }, userContent);
     });
   },
 
