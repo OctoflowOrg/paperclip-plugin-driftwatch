@@ -36,17 +36,15 @@ const manifest = {
       },
       anthropicApiKey: {
         type: 'string',
-        format: 'secret-ref',
         title: 'Anthropic API key (override)',
         description:
-          'Optional. Stored as a Paperclip encrypted secret reference. Falls back to ANTHROPIC_API_KEY env var if not set.',
+          'Optional. Falls back to ANTHROPIC_API_KEY env var if not set.',
       },
       openaiApiKey: {
         type: 'string',
-        format: 'secret-ref',
         title: 'OpenAI API key (override)',
         description:
-          'Optional. Stored as a Paperclip encrypted secret reference. Falls back to OPENAI_API_KEY env var if not set.',
+          'Optional. Falls back to OPENAI_API_KEY env var if not set.',
       },
     },
     required: ['provider', 'model'],

@@ -298,13 +298,8 @@ var plugin = definePlugin({
       const model = pluginConfig.model ?? "gpt-5";
       const keyRef = provider === "openai" ? pluginConfig.openaiApiKey : pluginConfig.anthropicApiKey;
       let apiKey;
-      let secretRefError;
-      if (keyRef) {
-        try {
-          apiKey = await ctx.secrets.resolve(keyRef);
-        } catch {
-          secretRefError = provider === "openai" ? "Invalid OpenAI secret reference in plugin settings. Use a Paperclip secret reference, not a raw API key." : "Invalid Anthropic secret reference in plugin settings. Use a Paperclip secret reference, not a raw API key.";
-        }
+      if (keyRef && typeof keyRef === "string") {
+        apiKey = keyRef;
       }
       if (!apiKey) {
         const envVar = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
@@ -312,9 +307,6 @@ var plugin = definePlugin({
       }
       if (!apiKey) {
         const envVar = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
-        if (secretRefError) {
-          throw new Error(secretRefError);
-        }
         throw new Error(
           `No API key for "${provider}". Set ${envVar} env var or configure in plugin settings.`
         );
